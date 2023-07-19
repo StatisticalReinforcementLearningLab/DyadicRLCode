@@ -1,0 +1,14 @@
+*.aux
+*.blg
+*.log
+*.out
+*.bcf
+*.run.xml
+*.gz
+*.toc
+*.nav
+*.snm
+*.bbl
+*.dvi
+*.DS_Store
+*.Rhistory
