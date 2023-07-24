@@ -6,7 +6,7 @@ This repository contains the code to reproduce the numerical results in Li et al
 * test_bed/: This contains the code to reproduce the results from Section 5 (the simulation test bed). The "preprocessing/" subfolder contains R code for data preprocessing. The "test_algorithm/" subfolder contains the code for implementing reinforcement learning algorithms. Each subfolder therein contains the code for one figure or a group of figures.
 
 ## Replicating the experiments
-* To replicate the experiments, one needs to run the "run-me_dyad.sh" file on a computing cluster, followed by the "make_plot.py" or "make_heatmap.py" file to generate the plot. The "script_dyad.sh" file is specifically designed for the FAS RC cluster at Harvard. You may need to modify these files as per your requirements.
+* To replicate the experiments, one needs to run the "run-me_dyad.sh" file on a computing cluster, followed by the "make_plot.py" or "make_heatmap.py" file to generate the plot. The "script_dyad.sh" file is specifically designed for the [FAS RC](https://www.rc.fas.harvard.edu/) cluster at Harvard. You may need to modify these files as per your requirements.
 
 ## References
 Shuangning Li, Lluís Salvat Niell, Sung Won Choi, Inbal Nahum-Shani, Guy Shani and Susan A. Murphy. <b>Dyadic Reinforcement Learning</b>. 2023. [[arXiv](http://people.seas.harvard.edu/~samurphy/)]
