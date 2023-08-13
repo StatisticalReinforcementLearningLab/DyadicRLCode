@@ -21,8 +21,12 @@ sd_daily = 1
 mean_weekly = 0
 sd_weekly = 1
 
+def cap(x, l, u):
+    return (x - np.maximum(x-u,0) - np.minimum(x-l,0))
+
 para_one = int(sys.argv[2])
 para_two = int(sys.argv[3])
+para_three = int(sys.argv[4])
 
 class Environment:
 
@@ -45,11 +49,8 @@ class Environment:
         filename = "%s/coeffi_caregiver_pair%s.csv" % (residual_file_location, self.pair_no)
         self.coeffi_caregiver_data = pd.read_csv(filename).to_numpy()[:,1:].astype(float)
         
-        filename = "%s/coeffi_weekly.csv" % (residual_file_location)
+        filename = "%s/coeffi_weekly_pair%s.csv" % (residual_file_location, self.pair_no)
         self.coeffi_weekly_data = pd.read_csv(filename).to_numpy()[:,1:].astype(float)
-        
-        filename = "%s/withinsd_weekly.csv" % (residual_file_location)
-        self.within_sd = pd.read_csv(filename).to_numpy()[0,1]
         
         filename = "%s/residual_weekly_pair%s.csv" % (residual_file_location, self.pair_no)
         self.residual_weekly_data = pd.read_csv(filename).to_numpy()[:,1:].astype(float)
@@ -65,8 +66,11 @@ class Environment:
         self.direct_effect = self.abscorr/5
         self.indirect_effect = self.abscorr/25
         
-        self.weekly_abscorr = abs(self.coeffi_weekly_data[1,0]*self.within_sd)
-        self.delayed_effect = self.weekly_abscorr/25
+        self.weekly_abscorr = abs(self.coeffi_weekly_data[1,0])
+        if para_three == 0:
+            self.delayed_effect = 0
+        else:
+            self.delayed_effect = self.weekly_abscorr/50*(2**(para_three-1))
         #self.delayed_effect = 0
         
         ## burden effect strength
@@ -141,6 +145,11 @@ class Environment:
 
         self.S_next_weekly_temp += self.delayed_effect*self.A_weekly 
 
+        ## cap the variables
+        ##heart, sleep, step
+        self.S_next_daily_temp = cap(self.S_next_daily_temp,np.array([55,0,0]), np.array([120,43200, 200]))
+        self.S_next_daily_caregiver_temp = cap(self.S_next_daily_caregiver_temp,np.array([55,0,0]), np.array([120,43200, 200]))
+        self.S_next_weekly_temp = cap(self.S_next_weekly_temp, np.array([0,0]), np.array([10,10]))
         
         self.R = self.S_next_daily_temp[2]
         self.rewards = np.append(self.rewards, self.R)
@@ -705,10 +714,10 @@ average_rewards_stan = np.mean(rewards_stan, axis = 0)
 t1 = time.time()
 total_n = t1-t0
 
-folder_name = "output"+ str(para_one) + str(para_two)
+folder_name = "output"
 
 import pickle
-filename = folder_name + "/output"+ str(seed) + ".pkl"
+filename = folder_name + "/output"+ str(para_one) + "_"+ str(para_two)+ "_" + str(para_three)+ "_" + str(seed) + ".pkl"
 
 with open(filename, 'wb') as f:  # Python 3: open(..., 'wb')
     pickle.dump([rewards, \

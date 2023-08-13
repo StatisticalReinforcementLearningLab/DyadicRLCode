@@ -204,38 +204,6 @@ treatment_effects = NULL
 ## GEE
 ############################
 
-nn = dim(full_data_stan)[1]
-full_data_sunday = full_data_stan[(1:(nn/7))*7,]
-## one big GEE for weeklymood
-residual_weekly_all = NULL
-coefficients_weekly = NULL
-data_sunday = data_final[(1:14)*7,c("weekly_mood_patient","weekly_mood_caregiver","weekly_mood_patient_next","weekly_mood_caregiver_next", "pair_id")]
-fit_gee <- geeglm(weekly_mood_patient_next~weekly_mood_patient+weekly_mood_caregiver,
-                  data = full_data_sunday,
-                  id = pair_id, 
-                  family = gaussian,
-                  corstr = "ar1")
-residual_weekly_all = cbind(residual_weekly_all, fit_gee$residuals)
-coefficients_weekly = cbind(coefficients_weekly, fit_gee$coefficients)
-
-fit_gee <- geeglm(weekly_mood_caregiver_next~weekly_mood_patient+weekly_mood_caregiver,
-                  data = full_data_sunday,
-                  id = pair_id, 
-                  family = gaussian,
-                  corstr = "ar1")
-residual_weekly_all = cbind(residual_weekly_all, fit_gee$residuals)
-coefficients_weekly = cbind(coefficients_weekly, fit_gee$coefficients)
-
-
-filename = sprintf("%s/coeffi_weekly.csv",residual_file_location)
-write.csv(coefficients_weekly, filename)
-
-## within_person_variance
-within_sd = full_data_sunday %>% group_by(pair_id) %>% summarise(sd = sd(weekly_mood_patient)) %>% summarise(mean = mean(sd))
-print(within_sd)
-
-filename = sprintf("%s/withinsd_weekly.csv",residual_file_location)
-write.csv(within_sd, filename)
 
 for (pair_no in 1:n){
   print(pair_no)
@@ -248,7 +216,7 @@ for (pair_no in 1:n){
   filename = sprintf("%s/original_pair%s.csv",residual_file_location, pair_no)
   write.csv(data_original, filename)
   
-
+  
   #### get the residuals 
   residual = NULL
   coeffi = NULL
@@ -301,14 +269,30 @@ for (pair_no in 1:n){
   
   
   ############################
-  #analying the weekly mood change
-  residual_weekly = residual_weekly_all[(1:14) + (pair_no-1)*14]
+  #analyzing the weekly mood change
+  residual_weekly = NULL
+  coeffi_weekly = NULL
+  data_sunday = data_final[(1:14)*7,c("weekly_mood_patient","weekly_mood_caregiver","weekly_mood_patient_next","weekly_mood_caregiver_next", "pair_id")]
+  fit_gee <- geeglm(weekly_mood_patient_next~weekly_mood_patient+weekly_mood_caregiver,
+                    data = data_sunday,
+                    id = pair_id, 
+                    family = gaussian,
+                    corstr = "ar1")
+  residual_weekly = cbind(residual_weekly, fit_gee$residuals)
+  coeffi_weekly = cbind(coeffi_weekly, fit_gee$coefficients)
+  
+  fit_gee <- geeglm(weekly_mood_caregiver_next~weekly_mood_patient+weekly_mood_caregiver,
+                    data = data_sunday,
+                    id = pair_id, 
+                    family = gaussian,
+                    corstr = "ar1")
+  residual_weekly = cbind(residual_weekly, fit_gee$residuals)
+  coeffi_weekly = cbind(coeffi_weekly, fit_gee$coefficients)
   
   filename = sprintf("%s/residual_weekly_pair%s.csv",residual_file_location, pair_no)
   write.csv(residual_weekly, filename)
+  filename = sprintf("%s/coeffi_weekly_pair%s.csv",residual_file_location, pair_no)
+  write.csv(coeffi_weekly, filename)
   
 }
-
-mean(full_data$step)
-sd(full_data$step)
 

@@ -16,10 +16,11 @@ for one in {2,4,6,8}; do
 for two in {2,4,6,8}; do
 if [ $two -gt $one ] || [ $two -eq $one ]
 then
+    for three in {0..5}; do
     # Script to be run
-    SCRIPT="script_dyad.sh $seed $one $two"
+    SCRIPT="script_dyad.sh $seed $one $two $three"
     # Define job name
-    JOBN="job_seed"$seed"_"$one"_"$two
+    JOBN="job_seed"$seed"_"$one"_"$two"_"$three
     OUTF=$LOGS"/"$JOBN".out"
     ERRF=$LOGS"/"$JOBN".err"
     # Assemble slurm order for this job
@@ -29,6 +30,7 @@ then
     # Submit order
     $ORD
     #./$SCRIPT
+    done
 fi
 done
 done
