@@ -197,6 +197,20 @@ vectors_to_stan = c("heart", "mood","sleep", "step",
                     "heart_caregiver_next", "mood_caregiver_next","sleep_caregiver_next", "step_caregiver_next")
 full_data_stan = full_data %>% mutate_at(vectors_to_stan, ~(scale(.) %>% as.vector))
 
+mean_full = apply(full_data[c("heart", "mood","sleep", "step", 
+                              "heart_caregiver", "mood_caregiver","sleep_caregiver", "step_caregiver",
+                              "weekly_mood_patient", "weekly_mood_caregiver")], 2, mean)
+sd_full = apply(full_data[c("heart", "mood","sleep", "step", 
+                            "heart_caregiver", "mood_caregiver","sleep_caregiver", "step_caregiver",
+                            "weekly_mood_patient", "weekly_mood_caregiver")], 2, sd)
+cap_high_original = c(120,10,43200,200,120,10,43200,200,10,10)
+cap_low_original = c(55,0,0,0,55,0,0,0,0,0)
+cap_high = (cap_high_original-mean_full)/sd_full
+cap_low = (cap_low_original-mean_full)/sd_full
+
+filename = sprintf("%s/caps.csv",residual_file_location)
+write.csv(rbind(cap_low, cap_high), filename)
+
 ## keep track of coefficients
 treatment_effects = NULL
 

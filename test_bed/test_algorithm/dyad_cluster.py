@@ -55,6 +55,10 @@ class Environment:
         filename = "%s/residual_weekly_pair%s.csv" % (residual_file_location, self.pair_no)
         self.residual_weekly_data = pd.read_csv(filename).to_numpy()[:,1:].astype(float)
         
+        filename = "%s/caps.csv" % (residual_file_location)
+        self.caps = pd.read_csv(filename).to_numpy()[:,1:].astype(float)
+
+
         self.H = 7
         self.which_day = 0
         
@@ -71,7 +75,6 @@ class Environment:
             self.delayed_effect = 0
         else:
             self.delayed_effect = self.weekly_abscorr/50*(2**(para_three-1))
-        #self.delayed_effect = 0
         
         ## burden effect strength
         self.burden_sensitivity_action = 0.5
@@ -147,9 +150,9 @@ class Environment:
 
         ## cap the variables
         ##heart, sleep, step
-        self.S_next_daily_temp = cap(self.S_next_daily_temp,np.array([55,0,0]), np.array([120,43200, 200]))
-        self.S_next_daily_caregiver_temp = cap(self.S_next_daily_caregiver_temp,np.array([55,0,0]), np.array([120,43200, 200]))
-        self.S_next_weekly_temp = cap(self.S_next_weekly_temp, np.array([0,0]), np.array([10,10]))
+        self.S_next_daily_temp = cap(self.S_next_daily_temp,np.array([self.caps[0,0],self.caps[0,2],self.caps[0,3]]), np.array([self.caps[1,0],self.caps[1,2], self.caps[1,3]]))
+        self.S_next_daily_caregiver_temp = cap(self.S_next_daily_caregiver_temp,np.array([self.caps[0,4],self.caps[0,6],self.caps[0,7]]), np.array([self.caps[1,4],self.caps[1,6], self.caps[1,7]]))
+        self.S_next_weekly_temp = cap(self.S_next_weekly_temp, np.array([self.caps[0,8],self.caps[0,9]]), np.array([self.caps[1,8],self.caps[1,9]]))
         
         self.R = self.S_next_daily_temp[2]
         self.rewards = np.append(self.rewards, self.R)
